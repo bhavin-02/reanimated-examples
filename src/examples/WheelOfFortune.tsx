@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import * as d3Shape from 'd3-shape';
-import { Button, Dimensions, StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  SharedValue,
-  useAnimatedStyle,
-  useSharedValue,
-  withDecay,
-  withTiming,
-} from 'react-native-reanimated';
+import {
+  Animated,
+  Button,
+  Dimensions,
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from 'react-native';
 import Svg, { Circle, G, Path, Text as SvgText, TSpan } from 'react-native-svg';
 
 type WheelPaths = {
@@ -19,7 +21,7 @@ type WheelPaths = {
 };
 
 interface RenderSvgWheelInterface {
-  angle: SharedValue<number>;
+  angle: Animated.Value;
   wheelPaths: WheelPaths[];
 }
 
@@ -34,7 +36,6 @@ const colors = ['#F1C9B8', '#FFFFFF'];
 const values = ['No win', '5% off', 'No win', '10% off', 'No win', '100% off'];
 
 let angleVal = 0;
-let velocityIndex = 0;
 
 const snap = (points: number | number[]) => {
   if (typeof points === 'number') {
@@ -106,11 +107,16 @@ const RenderSvgWheel = ({ angle, wheelPaths }: RenderSvgWheelInterface) => {
     );
   };
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ rotate: `${angle.value}deg` }],
-    };
-  }, []);
+  const animatedStyle: StyleProp<ViewStyle> = {
+    transform: [
+      {
+        rotate: angle.interpolate({
+          inputRange: [-oneTurn, 0, oneTurn],
+          outputRange: [`-${oneTurn}deg`, '0deg', `${oneTurn}deg`],
+        }),
+      },
+    ],
+  };
 
   return (
     <View style={styles.container}>
@@ -160,46 +166,78 @@ const RenderSvgWheel = ({ angle, wheelPaths }: RenderSvgWheelInterface) => {
   );
 };
 
+let currentVelocity: number;
+let previousVelocity: number;
+
 export default function WheelOfFortune() {
   const wheelPaths = makeWheel();
-  const angle = useSharedValue(0);
+  const angle = useRef(new Animated.Value(0)).current;
 
   const [isEnable, setIsEnable] = useState(true);
   const [winner, setWinner] = useState<string>();
   const [finished, setFinished] = useState(false);
 
   const panFun = () => {
-    // setIsEnable(false);
-    // setFinished(false);
+    setIsEnable(false);
+    setFinished(false);
 
-    const velocities = [
-      9.5, 9.5, 9.5, 9.5, 9.5, 10, 10, 9.5, 9.5, 9.5, 9.5, 9.5, 10, 10, 9.5,
-      9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
-      9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
-      9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
-      9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
-      9.5, 9.5, 9.5, 9.5, 9.5, 10, 10, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
-      9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
-    ];
+    const otherPossibility = 0.03;
+    const noWinPossibility = 0.97;
 
-    const velocity = velocities[velocityIndex];
+    const noWinVelocities = [9, 15, 30];
+    const otherVelocities = [10, 20, 40];
 
-    angle.value = withDecay({ velocity, deceleration: 0.999 }, () => {
-      velocityIndex++;
-      angle.value = angleVal % oneTurn;
+    const totalPossibility = noWinPossibility + otherPossibility;
+
+    const random = Math.random() * totalPossibility;
+
+    if (otherVelocities.includes(currentVelocity)) {
+      previousVelocity = currentVelocity;
+    } else {
+      if (random < noWinPossibility) {
+        const randomIndex = Math.floor(Math.random() * noWinVelocities.length);
+        previousVelocity = currentVelocity;
+        currentVelocity = noWinVelocities[randomIndex];
+      } else {
+        const randomIndex = Math.floor(Math.random() * otherVelocities.length);
+        previousVelocity = currentVelocity;
+        currentVelocity = otherVelocities[randomIndex];
+      }
+    }
+
+    Animated.decay(angle, {
+      velocity: currentVelocity,
+      deceleration: 0.999,
+      useNativeDriver: true,
+    }).start(() => {
+      angle.setValue(angleVal % oneTurn);
       const snapTo = snap(oneTurn / numberOfSegment);
-      angle.value = withTiming(snapTo(angleVal) as number, { duration: 300 });
-      const winningIndex = getWinnerIndex();
-      setIsEnable(true);
-      setFinished(true);
-      setWinner(wheelPaths[winningIndex].value);
+      Animated.timing(angle, {
+        toValue: Number(snapTo(angleVal)),
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        if (
+          otherVelocities.includes(currentVelocity) &&
+          currentVelocity === previousVelocity
+        ) {
+          const randomIndex = Math.floor(
+            Math.random() * noWinVelocities.length,
+          );
+          previousVelocity = currentVelocity;
+          currentVelocity = noWinVelocities[randomIndex];
+        }
+        const winningIndex = getWinnerIndex();
+        setIsEnable(true);
+        setFinished(true);
+        setWinner(wheelPaths[winningIndex].value);
+      });
     });
   };
 
   useEffect(() => {
-    // angle.addListener(event => (angleVal = event.value));
-    angleVal = angle.value;
-  }, [angle.value]);
+    angle.addListener(event => (angleVal = event.value));
+  }, [angle]);
 
   const getWinnerIndex = () => {
     const deg = Math.abs(Math.round(angleVal % oneTurn));

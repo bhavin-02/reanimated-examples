@@ -3,6 +3,7 @@ import { FC } from 'react';
 import AboutExample from './AboutExample';
 import AmountExample from './AmountExample';
 import AnimatableRefExample from './AnimatableRefExample';
+import AnimatedCarousel from './AnimatedCarousel';
 import AnimatedKeyboardExample from './AnimatedKeyboardExample';
 import AnimatedSensorAccelerometerExample from './AnimatedSensorAccelerometerExample';
 import AnimatedSensorGravityExample from './AnimatedSensorGravityExample';
@@ -32,6 +33,7 @@ import DragAndSnapExample from './DragAndSnapExample';
 import EmojiWaterfallExample from './EmojiWaterfallExample';
 import EmptyExample from './EmptyExample';
 import ExtrapolationExample from './ExtrapolationExample';
+import FlatListPicker from './FlatListPicker';
 import FrameCallbackExample from './FrameCallbackExample';
 import GestureHandlerExample from './GestureHandlerExample';
 import GetViewPropExample from './GetViewPropExample';
@@ -113,6 +115,7 @@ import SharedStyleExample from './SharedStyleExample';
 import SlickCarouselFlatList from './SlickCarouselFlatList';
 import SvgExample from './SvgExample';
 import SwipeableListExample from './SwipeableListExample';
+import TimePicker from './TimePicker';
 import TransformExample from './TransformExample';
 import UpdatePropsPerfExample from './UpdatePropsPerfExample';
 import VolumeExample from './VolumeExample';
@@ -139,35 +142,45 @@ export const EXAMPLES: Record<string, Example> = {
     title: 'Parallax Carousel',
     screen: ParallaxCarousel,
   },
-
   AnimatedTabsIndicator: {
     icon: '➗',
     title: 'Animated tabs indicator',
     screen: AnimatedTabsIndicator,
   },
-
   SlickCarouselFlatList: {
     icon: '🧩',
     title: 'Slick carousel FlatList',
     screen: SlickCarouselFlatList,
   },
-
   WheelOfFortune: {
     icon: '🎰',
     title: 'Wheel of fortune',
     screen: WheelOfFortune,
   },
-
   CustomDrawer: {
     icon: '📝',
     title: 'Custom drawer',
     screen: CustomDrawer,
   },
-
   OverFlowItems: {
     title: 'Over Flow Items',
     icon: '📦',
     screen: OverFlowItems,
+  },
+  TimePicker: {
+    title: 'Time Picker',
+    icon: '⏰',
+    screen: TimePicker,
+  },
+  FlatListPicker: {
+    title: 'FlatList Picker',
+    icon: '📋',
+    screen: FlatListPicker,
+  },
+  AnimatedCarousel: {
+    title: 'Animated Carousel',
+    icon: '🍪',
+    screen: AnimatedCarousel,
   },
 
   // Empty example for test purposes
