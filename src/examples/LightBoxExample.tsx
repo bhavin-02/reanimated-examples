@@ -1,4 +1,10 @@
-import React, { Component, MutableRefObject, useEffect, useState } from 'react';
+import React, {
+  Component,
+  MutableRefObject,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { useHeaderHeight } from '@react-navigation/elements';
 import { Dimensions, Image, Platform, StyleSheet, View } from 'react-native';

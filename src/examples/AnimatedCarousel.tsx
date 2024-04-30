@@ -25,10 +25,8 @@ import React, { PropsWithChildren, useCallback, useState } from 'react';
 import {
   ColorValue,
   Dimensions,
-  Image,
   StyleProp,
   StyleSheet,
-  Text,
   View,
   ViewStyle,
 } from 'react-native';
@@ -40,10 +38,16 @@ import {
   State,
 } from 'react-native-gesture-handler';
 import Animated, {
+  Easing,
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  SlideOutDown,
   interpolate,
   useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
@@ -56,6 +60,7 @@ interface ItemInterface extends PropsWithChildren {
 
 interface IconInterface {
   type: string;
+  color: ColorValue;
 }
 
 interface DescriptionInterface {
@@ -86,7 +91,7 @@ const iconByType = {
 const data = [
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1273477_8-ad36e3b.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1273477_8-ad36e3b.jpg?quality=90&resize=500,500',
     title: 'Easy pancakes',
     description:
       'Learn a skill for life with our foolproof easy crêpe recipe that ensures perfect pancakes every time – elaborate flip optional',
@@ -98,7 +103,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-901451_9-687c42b.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-901451_9-687c42b.jpg?quality=90&resize=500,500',
     title: 'Best Yorkshire puddings',
     description:
       "The secret to getting gloriously puffed-up Yorkshire puddings is to have the fat sizzling hot and don't open the oven door!",
@@ -110,7 +115,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001451_6-c8d72b8.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001451_6-c8d72b8.jpg?quality=90&resize=500,500',
     title: 'Chilli con carne recipe',
     description:
       'This great chilli recipe has to be one of the best dishes to serve to friends for a casual get-together. An easy sharing favourite that uses up storecupboard ingredients.',
@@ -122,7 +127,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/06/recipe-image-legacy-id-1273522_8-a6b9246.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/06/recipe-image-legacy-id-1273522_8-a6b9246.jpg?quality=90&resize=500,500',
     title: 'Banana bread',
     description:
       "A cross between banana bread and a drizzle cake, this easy banana loaf recipe is a quick bake that can be frozen. It's great for using up overripe bananas, too.",
@@ -134,7 +139,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/the-best-spaghetti-bolognese-7e83155.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/the-best-spaghetti-bolognese-7e83155.jpg?quality=90&resize=500,500',
     title: 'The best spaghetti bolognese recipe',
     description:
       'Our best ever spaghetti bolognese is super easy and a true Italian classic with a meaty, chilli sauce. This pasta bolognese recipe is sure to become a family favourite.',
@@ -146,7 +151,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001464_11-ed687dd.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001464_11-ed687dd.jpg?quality=90&resize=500,500',
     title: 'Best ever chocolate brownies recipe',
     description:
       'A super easy brownie recipe for a squidgy chocolate bake. Watch our foolproof recipe video to help you get a perfect traybake every time.',
@@ -158,7 +163,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001468_10-81b47f5.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001468_10-81b47f5.jpg?quality=90&resize=500,500',
     title: 'Classic Victoria sandwich recipe',
     description:
       'The perfect party cake, a Victoria sponge is a traditional bake everyone will love. Makes an easy wedding cake, too',
@@ -170,7 +175,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001491_11-2e0fa5c.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001491_11-2e0fa5c.jpg?quality=90&resize=500,500',
     title: 'Ultimate spaghetti carbonara recipe',
     description:
       'Discover how to make traditional spaghetti carbonara. This classic Italian pasta dish combines a silky cheese sauce with crisp pancetta and black pepper.',
@@ -182,7 +187,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001500_10-16f94ee.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001500_10-16f94ee.jpg?quality=90&resize=500,500',
     title: 'Classic scones with jam & clotted cream',
     description:
       "You can have a batch of scones on the table in 20 minutes with Jane Hornby's storecupboard recipe, perfect for unexpected guests",
@@ -194,7 +199,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1238452_7-35e4911.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1238452_7-35e4911.jpg?quality=90&resize=500,500',
     title: 'Lemon drizzle cake',
     description:
       "It's difficult not to demolish this classic lemon drizzle in just one sitting, so why not make two at once?",
@@ -206,7 +211,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-736458_11-5ff6be2.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-736458_11-5ff6be2.jpg?quality=90&resize=500,500',
     title: 'Toad-in-the-hole',
     description:
       'Serve this comforting classic made with chipolata sausages and a simple batter – it’s easy enough that kids can help make it.',
@@ -218,7 +223,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/roast-potatoes-main-7b0e23a.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/roast-potatoes-main-7b0e23a.jpg?quality=90&resize=500,500',
     title: 'Ultimate roast potatoes',
     description:
       'Make sure your roasties are perfect for Sunday lunch or even Christmas dinner – this foolproof recipe guarantees a crisp crunch that gives way to a fluffy middle',
@@ -230,7 +235,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1074465_10-0f090a9.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1074465_10-0f090a9.jpg?quality=90&resize=500,500',
     title: 'Cottage pie',
     description:
       'Make our classic meat and potato pie for a comforting dinner. This great-value family favourite freezes beautifully and is a guaranteed crowd-pleaser',
@@ -242,7 +247,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/the-best-apple-crumble-1fb6036-scaled.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/the-best-apple-crumble-1fb6036-scaled.jpg?quality=90&resize=500,500',
     title: 'The best apple crumble',
     description:
       "You can't beat a traditional apple filling topped with crispy, buttery crumble - classic comfort food at its best",
@@ -254,7 +259,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-196602_11-01e6eea.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-196602_11-01e6eea.jpg?quality=90&resize=500,500',
     title: 'Cauliflower cheese',
     description:
       "Pop this classic side dish in the oven when you take your roast chicken out to rest, so there's no hot shelf juggling",
@@ -266,7 +271,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1079477_11-e712431.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1079477_11-e712431.jpg?quality=90&resize=500,500',
     title: 'Vintage chocolate chip cookies',
     description:
       "An easy chocolate chip cookie recipe for soft biscuits with a squidgy middle that will impress family and friends. Make plenty as they're sure to be a hit",
@@ -278,7 +283,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/flapjacks-239a448.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/flapjacks-239a448.jpg?quality=90&resize=500,500',
     title: 'Yummy golden syrup flapjacks',
     description:
       "Bake these 4-ingredient flapjacks – they're easy to make and ready in half an hour. Add chocolate drops, desiccated coconut or sultanas, if you like",
@@ -290,7 +295,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1274503_8-05ae02b.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1274503_8-05ae02b.jpg?quality=90&resize=500,500',
     title: 'Chicken & chorizo jambalaya',
     description:
       "A healthy Cajun-inspired rice pot recipe that's bursting with spicy Spanish sausage, sweet peppers and tomatoes",
@@ -302,7 +307,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1043451_11-4713959.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1043451_11-4713959.jpg?quality=90&resize=500,500',
     title: 'Ultimate chocolate cake',
     description:
       'Indulge yourself with this ultimate chocolate ganache cake recipe that is beautifully moist, rich and fudgy. Perfect for a celebration or an afternoon tea',
@@ -314,7 +319,7 @@ const data = [
   },
   {
     image:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1074500_11-ee0d41a.jpg?quality=90&resize=93,85',
+      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1074500_11-ee0d41a.jpg?quality=90&resize=500,500',
     title: 'Spiced carrot & lentil soup',
     description:
       "A delicious, spicy blend packed full of iron and low in fat to boot. It's ready in under half an hour, or can be made in a slow cooker",
@@ -339,29 +344,33 @@ const colors = {
   darkText: '#A5A6AA',
 };
 
+const entering = SlideInDown.duration(DURATION * 0.8).easing(
+  Easing.in(Easing.linear),
+);
+const exiting = SlideOutDown.duration(DURATION * 0.8).easing(
+  Easing.out(Easing.linear),
+);
+
 const Item = ({ children, style }: ItemInterface) => {
   return <View style={[styles.itemContainer, style]}>{children}</View>;
 };
 
-const Icon = ({ type }: IconInterface) => {
+const Icon = ({ type, color }: IconInterface) => {
   return (
-    <SimpleLineIcons
-      name={type}
-      size={26}
-      color={'#A5A6AA'}
-      style={styles.icon}
-    />
+    <SimpleLineIcons name={type} size={26} color={color} style={styles.icon} />
   );
 };
 
 const Description = ({ index, text, color }: DescriptionInterface) => {
   return (
     <Item>
-      <Text
+      <Animated.Text
+        entering={entering}
+        exiting={exiting}
         key={`description-${index}`}
         style={[styles.description, { color }]}>
         {text}
-      </Text>
+      </Animated.Text>
     </Item>
   );
 };
@@ -369,9 +378,13 @@ const Description = ({ index, text, color }: DescriptionInterface) => {
 const Title = ({ index, text, color }: TitleInterface) => {
   return (
     <Item style={styles.titleItem}>
-      <Text key={`title-${index}`} style={[styles.title, { color }]}>
+      <Animated.Text
+        entering={entering}
+        exiting={exiting}
+        key={`title-${index}`}
+        style={[styles.title, { color }]}>
         {text}
-      </Text>
+      </Animated.Text>
     </Item>
   );
 };
@@ -382,13 +395,15 @@ const Details = ({ color, index }: DetailsInterface) => {
       {detailsList.map(key => {
         return (
           <View key={key} style={styles.detailsContainer}>
-            <Icon type={iconByType[key as IconsType]} />
+            <Icon type={iconByType[key as IconsType]} color={color} />
             <Item style={styles.detailsItem}>
-              <Text
+              <Animated.Text
+                entering={entering}
+                exiting={exiting}
                 key={`${key}-${index}`}
                 style={[styles.detailsItemText, { color }]}>
                 {data[index][key as IconsType]}
-              </Text>
+              </Animated.Text>
             </Item>
           </View>
         );
@@ -403,16 +418,8 @@ export default function AnimatedCarousel() {
 
   const [index, setIndex] = useState(0);
 
-  const color = index % 2 === 1 ? colors.darkText : colors.lightText;
+  const color = index % 2 === 0 ? colors.darkText : colors.lightText;
   const headingColor = index % 2 === 1 ? colors.lightText : colors.darkBg;
-
-  useAnimatedReaction(
-    () => animation.value,
-    currentValue => {
-      animation.value = withTiming(currentValue, { duration: DURATION });
-    },
-    [animation],
-  );
 
   const setActiveIndex = useCallback(
     (ind: number) => {
@@ -454,6 +461,43 @@ export default function AnimatedCarousel() {
     };
   }, [animation]);
 
+  useAnimatedReaction(
+    () => activeIndex.value,
+    currentValue => {
+      animation.value = withTiming(currentValue, { duration: DURATION * 0.7 });
+    },
+    [activeIndex],
+  );
+
+  const rotate = useSharedValue(0);
+
+  const animatedImageStyle = useAnimatedStyle(() => {
+    rotate.value = withSpring(animation.value, {
+      duration: DURATION,
+      stiffness: 0.01,
+      restDisplacementThreshold: 0.01,
+      restSpeedThreshold: 0.01,
+      velocity: 0.01,
+    });
+
+    const opacity = interpolate(
+      animation.value,
+      [index - 1, index, index + 1],
+      [0, 1, 0],
+    );
+
+    const rotation = interpolate(
+      rotate.value,
+      [index - 1, index - 0.5, index, index + 0.5, index + 1],
+      [-360, 90, 0, 90, -360],
+    );
+
+    return {
+      opacity,
+      transform: [{ rotate: `${rotation}deg` }],
+    };
+  });
+
   return (
     <FlingGestureHandler
       key={'up'}
@@ -486,12 +530,17 @@ export default function AnimatedCarousel() {
           <View
             style={[
               styles.imageContainer,
-              {
-                backgroundColor:
-                  index % 2 === 0 ? colors.darkBg : colors.lightBg,
-              },
+              { borderColor: index % 2 === 0 ? colors.darkBg : colors.lightBg },
             ]}>
-            <Image source={{ uri: data[index].image }} style={styles.image} />
+            <Animated.View
+              style={[styles.imageShadowContainer, animatedImageStyle]}>
+              <Animated.Image
+                entering={FadeIn.duration(DURATION)}
+                exiting={FadeOut.duration(DURATION)}
+                source={{ uri: data[index].image }}
+                style={styles.image}
+              />
+            </Animated.View>
           </View>
           <View style={styles.currentItemDetailsContainer}>
             <Title
@@ -516,17 +565,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  imageContainer: {},
-  image: {},
+  imageContainer: {
+    position: 'absolute',
+    top: height / 2 - (ITEM_SIZE - 90),
+    right: -(ITEM_SIZE / 2.5),
+    height: ITEM_SIZE,
+    width: ITEM_SIZE,
+    borderRadius: ITEM_SIZE,
+    borderLeftWidth: 1,
+    padding: 20,
+  },
+  imageShadowContainer: {
+    borderRadius: ITEM_SIZE,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 5,
+  },
+  image: {
+    height: '100%',
+    width: '100%',
+    borderRadius: ITEM_SIZE,
+  },
   currentItemDetailsContainer: {
     flex: 1,
-    padding: 20,
+    padding: 15,
     justifyContent: 'space-evenly',
   },
   itemContainer: {
+    flex: 1,
     justifyContent: 'center',
     overflow: 'hidden',
-    backgroundColor: 'transparent',
   },
   icon: {
     marginRight: 15,
@@ -536,7 +609,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   titleItem: {
-    height: TITLE_SIZE * 3,
     justifyContent: 'flex-end',
   },
   title: {

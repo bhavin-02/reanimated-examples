@@ -4,6 +4,7 @@ import AboutExample from './AboutExample';
 import AmountExample from './AmountExample';
 import AnimatableRefExample from './AnimatableRefExample';
 import AnimatedCarousel from './AnimatedCarousel';
+import AnimatedDialPad from './AnimatedDialPad';
 import AnimatedKeyboardExample from './AnimatedKeyboardExample';
 import AnimatedSensorAccelerometerExample from './AnimatedSensorAccelerometerExample';
 import AnimatedSensorGravityExample from './AnimatedSensorGravityExample';
@@ -11,9 +12,11 @@ import AnimatedSensorGyroscopeExample from './AnimatedSensorGyroscopeExample';
 import AnimatedSensorMagneticFieldExample from './AnimatedSensorMagneticFieldExample';
 import AnimatedSensorRotationExample from './AnimatedSensorRotationExample';
 import AnimatedStyleUpdateExample from './AnimatedStyleUpdateExample';
+import AnimatedSwipableToast from './AnimatedSwipableToast';
 import AnimatedTabBarExample from './AnimatedTabBarExample';
 import AnimatedTabsIndicator from './AnimatedTabsIndicator';
 import AnimatedTextWidthExample from './AnimatedTextWidthExample';
+import AnimatedTimer from './AnimatedTimer';
 import ArticleProgressExample from './ArticleProgressExample';
 import BabelVersionCheckExample from './BabelVersionCheckExample';
 import BokehExample from './BokehExample';
@@ -113,6 +116,7 @@ import RestoreStateExample from './SharedElementTransitions/RestoreState';
 import TransitionRestartExample from './SharedElementTransitions/TransitionRestart';
 import SharedStyleExample from './SharedStyleExample';
 import SlickCarouselFlatList from './SlickCarouselFlatList';
+import StickyFooterAnimation from './StickyFooterAnimation';
 import SvgExample from './SvgExample';
 import SwipeableListExample from './SwipeableListExample';
 import TimePicker from './TimePicker';
@@ -179,8 +183,28 @@ export const EXAMPLES: Record<string, Example> = {
   },
   AnimatedCarousel: {
     title: 'Animated Carousel',
-    icon: '🍪',
+    icon: '🎞️',
     screen: AnimatedCarousel,
+  },
+  AnimatedTimer: {
+    title: 'Animated Timer',
+    icon: '⏳',
+    screen: AnimatedTimer,
+  },
+  StickyFooterAnimation: {
+    title: 'Sticky Footer Animation',
+    icon: '💾',
+    screen: StickyFooterAnimation,
+  },
+  AnimatedDialPad: {
+    title: 'Animated Dial Pad',
+    icon: '☎️',
+    screen: AnimatedDialPad,
+  },
+  AnimatedSwipableToast: {
+    title: 'Animated Swipable Toast',
+    icon: '🍪',
+    screen: AnimatedSwipableToast,
   },
 
   // Empty example for test purposes
